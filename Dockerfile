@@ -237,8 +237,13 @@ ENV EXEUNTU=1
 COPY --from=chrome /headless-shell /headless-shell
 ENV PATH="/usr/local/bin:/headless-shell:${PATH}"
 
-RUN mkdir -p /home/exedev /home/exedev/.config/shelley /home/exedev/.config/fish/conf.d /home/exedev/.config/bin && \
+RUN mkdir -p /home/exedev /home/exedev/.config/shelley /home/exedev/.config/fish/conf.d /home/exedev/.config/bin \
+        /home/exedev/.config/git /home/exedev/.config/direnv /home/exedev/.config/atuin /home/exedev/.config/mise && \
     chown -R exedev:exedev /home/exedev /home/exedev/.config
+
+# Harper's sanitized dotfile assets (see dotfiles/ in the repo).
+COPY --chown=exedev:exedev dotfiles/gitconfig /home/exedev/.gitconfig
+COPY --chown=exedev:exedev dotfiles/git-ignore /home/exedev/.config/git/ignore
 
 USER exedev
 
@@ -288,9 +293,6 @@ RUN fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main
         oh-my-fish/plugin-grc \
         edc/bass \
         jorgebucaran/hydro'
-
-# Configure git to use 'main' as default branch name
-RUN git config --global init.defaultBranch main
 
 # Switch back to root to install systemd service
 USER root

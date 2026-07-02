@@ -59,3 +59,9 @@ test("installs fish plugin manager and runtime manager for Harper's workflow", (
   assert.match(dockerfile, /mise\.run/);
   assert.match(dockerfile, /setup\.atuin\.sh/);
 });
+
+test("copies translated git config into the image", () => {
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/gitconfig \/home\/exedev\/\.gitconfig/);
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/git-ignore \/home\/exedev\/\.config\/git\/ignore/);
+  assert.ok(!dockerfile.includes("git config --global init.defaultBranch"), "defaultBranch now lives in dotfiles/gitconfig");
+});

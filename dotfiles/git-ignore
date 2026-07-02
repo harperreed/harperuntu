@@ -1,0 +1,4 @@
+# ABOUTME: Global git excludes for the harperuntu image.
+# ABOUTME: Merged from Harper's ~/.config/git/ignore and ~/.gitignore_global.
+**/.claude/settings.local.json
+.jj

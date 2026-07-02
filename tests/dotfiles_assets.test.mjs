@@ -147,3 +147,13 @@ test("greeting drops the macOS keychain check", () => {
   assert.ok(!greeting.toLowerCase().includes("keychain"));
   assert.ok(!greeting.includes("security "));
 });
+
+test("tarscp uses a bash shebang", () => {
+  const tarscp = read("dotfiles/bin/tarscp");
+  assert.ok(tarscp.startsWith("#!/bin/bash\n"), "tarscp must start with #!/bin/bash");
+});
+
+test("greeting does not reference unshipped font files", () => {
+  const greeting = read("dotfiles/fish/conf.d/50-greeting.fish");
+  assert.ok(!greeting.includes(".config/fonts"), "50-greeting.fish must not reference .config/fonts");
+});

@@ -17,7 +17,7 @@ function fish_greeting
 
     if test -n "$hostname_cmd" -a -n "$figlet_cmd" -a -n "$lolcat_cmd"
         # Use command to bypass any GRC wrappers
-        command $hostname_cmd -s | command $figlet_cmd -w 100 -f ~/.config/fonts/Bloody.flf | $lolcat_cmd
+        command $hostname_cmd -s | command $figlet_cmd -w 100 | $lolcat_cmd
         command fortune | $lolcat_cmd
     else
         echo "Welcome!"

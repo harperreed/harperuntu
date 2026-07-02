@@ -1,0 +1,12 @@
+# ABOUTME: Atuin shell-history configuration for the harperuntu image.
+# ABOUTME: Harper's active settings only; sync activates after `atuin login` (no keys are baked in).
+dialect = "us"
+auto_sync = true
+update_check = true
+sync_frequency = "10m"
+filter_mode = "global"
+workspaces = true
+filter_mode_shell_up_key_binding = "directory"
+style = "auto"
+show_preview = true
+enter_accept = true

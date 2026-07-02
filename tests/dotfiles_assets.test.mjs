@@ -64,3 +64,36 @@ test("dotfiles are Linux-safe and free of hardcoded home paths", () => {
     }
   }
 });
+
+test("tmux config keeps Harper's bindings, loses macOS clipboard and TPM", () => {
+  const tmux = read("dotfiles/tmux.conf");
+  assert.ok(tmux.includes("set -g prefix C-a"), "screen-style prefix");
+  assert.ok(tmux.includes("set -g mode-keys vi"));
+  assert.ok(tmux.includes("set -g set-clipboard on"), "OSC 52 clipboard");
+  assert.ok(tmux.includes("copy-selection-and-cancel"));
+  assert.ok(!tmux.includes("@plugin"), "TPM plugins are not installed in the image");
+  assert.ok(!tmux.includes("tpm"), "tpm run line would error at tmux start");
+});
+
+test("direnvrc ships the uv layout", () => {
+  const direnvrc = read("dotfiles/direnvrc");
+  assert.ok(direnvrc.includes("layout_uv()"));
+  assert.ok(direnvrc.includes("uv venv"));
+  assert.ok(direnvrc.includes("export UV_ACTIVE=1"));
+});
+
+test("atuin config mirrors Harper's active settings", () => {
+  const atuin = read("dotfiles/atuin-config.toml");
+  for (const needle of [
+    'dialect = "us"',
+    "auto_sync = true",
+    'sync_frequency = "10m"',
+    'filter_mode = "global"',
+    "workspaces = true",
+    'filter_mode_shell_up_key_binding = "directory"',
+    "show_preview = true",
+    "enter_accept = true",
+  ]) {
+    assert.ok(atuin.includes(needle), `atuin config should contain ${needle}`);
+  }
+});

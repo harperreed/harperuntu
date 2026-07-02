@@ -244,6 +244,9 @@ RUN mkdir -p /home/exedev /home/exedev/.config/shelley /home/exedev/.config/fish
 # Harper's sanitized dotfile assets (see dotfiles/ in the repo).
 COPY --chown=exedev:exedev dotfiles/gitconfig /home/exedev/.gitconfig
 COPY --chown=exedev:exedev dotfiles/git-ignore /home/exedev/.config/git/ignore
+COPY --chown=exedev:exedev dotfiles/tmux.conf /home/exedev/.tmux.conf
+COPY --chown=exedev:exedev dotfiles/direnvrc /home/exedev/.config/direnv/direnvrc
+COPY --chown=exedev:exedev dotfiles/atuin-config.toml /home/exedev/.config/atuin/config.toml
 
 USER exedev
 

@@ -65,3 +65,9 @@ test("copies translated git config into the image", () => {
   assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/git-ignore \/home\/exedev\/\.config\/git\/ignore/);
   assert.ok(!dockerfile.includes("git config --global init.defaultBranch"), "defaultBranch now lives in dotfiles/gitconfig");
 });
+
+test("copies tmux, direnv, and atuin configs into the image", () => {
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/tmux\.conf \/home\/exedev\/\.tmux\.conf/);
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/direnvrc \/home\/exedev\/\.config\/direnv\/direnvrc/);
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/atuin-config\.toml \/home\/exedev\/\.config\/atuin\/config\.toml/);
+});

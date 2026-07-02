@@ -90,3 +90,8 @@ test("bootstraps mise toolchains and corepack for JS readiness", () => {
   assert.match(dockerfile, /corepack install -g pnpm/);
   assert.match(dockerfile, /\.local\/share\/mise\/shims/, "shims must be on PATH for non-interactive shells");
 });
+
+test("bakes and runs the smoke test as a build gate", () => {
+  assert.match(dockerfile, /COPY smoke-test\.sh \/usr\/local\/bin\/harperuntu-smoke/);
+  assert.match(dockerfile, /RUN \/usr\/local\/bin\/harperuntu-smoke/);
+});

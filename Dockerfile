@@ -424,6 +424,14 @@ RUN chmod 644 /var/www/html/index.html
 COPY xterm-ghostty.terminfo /tmp/xterm-ghostty.terminfo
 RUN tic -x - < /tmp/xterm-ghostty.terminfo && rm /tmp/xterm-ghostty.terminfo
 
+# Bake the smoke test and run it as a build gate: the image fails to build
+# if any expected tool or config regresses.
+COPY smoke-test.sh /usr/local/bin/harperuntu-smoke
+RUN chmod 0755 /usr/local/bin/harperuntu-smoke
+USER exedev
+RUN /usr/local/bin/harperuntu-smoke
+USER root
+
 # Expose the web server ports
 EXPOSE 8000 9999
 

@@ -167,3 +167,18 @@ test("mise config pins Harper's runtimes and release tools", () => {
     assert.ok(!mise.includes(banned), `mise config must not contain "${banned}"`);
   }
 });
+
+test("smoke test covers the required tool roster", () => {
+  const smoke = readFileSync(join(repoRoot, "smoke-test.sh"), "utf8");
+  for (const tool of [
+    "fish", "mise", "atuin", "fd", "bat", "direnv", "zoxide",
+    "node", "go", "uv", "codex", "claude", "pi",
+    "bun", "pnpm", "rustc", "ast-grep", "lazygit", "rga", "watchexec",
+    "yq", "difft", "just", "hyperfine", "shellcheck", "shfmt",
+  ]) {
+    assert.ok(smoke.includes(`"${tool}"`) || smoke.includes(` ${tool} `), `smoke test should check ${tool}`);
+  }
+  for (const key of ["pull.rebase", "push.autoSetupRemote", "merge.conflictstyle", "diff.algorithm"]) {
+    assert.ok(smoke.includes(key), `smoke test should assert git ${key}`);
+  }
+});

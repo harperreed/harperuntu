@@ -30,3 +30,10 @@ run-bash: build-exeuntu
 	  --tmpfs /tmp \
 	  --tmpfs /sys/fs/cgroup:rw \
 	  ghcr.io/boldsoftware/exeuntu:latest bash
+
+test: ## Run Dockerfile/dotfiles contract tests on the host
+	node --test "tests/*.test.mjs"
+
+smoke: ## Run the in-image smoke test against the built image
+	docker run --rm --user exedev -e HOME=/home/exedev \
+	  ghcr.io/boldsoftware/exeuntu:latest /usr/local/bin/harperuntu-smoke

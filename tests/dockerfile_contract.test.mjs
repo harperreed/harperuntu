@@ -76,3 +76,9 @@ test("copies personal bin scripts and fish extras into the image", () => {
   assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/bin\/ \/home\/exedev\/\.config\/bin\//);
   assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/fish\/conf\.d\/ \/home\/exedev\/\.config\/fish\/conf\.d\//);
 });
+
+test("installs apt dev utilities for fast dev loops", () => {
+  for (const pkg of ["shellcheck", "shfmt", "git-lfs", "hyperfine", "just"]) {
+    assert.match(dockerfile, new RegExp(`\\b${pkg}\\b`), `Dockerfile should install ${pkg}`);
+  }
+});

@@ -58,6 +58,7 @@ RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror://mirrors.ubuntu.c
 		git \
 		figlet lolcat fortune-mod bsdgames \
 		fd-find fzf zoxide direnv bat eza tmux hugo nmap pv mosh grc \
+		shellcheck shfmt git-lfs hyperfine just \
 		dnsutils whois gnupg openssl potrace python3-pygments \
 		libglib2.0-0 libnss3 libx11-6 libxcomposite1 libxdamage1 \
 		libxext6 libxi6 libxrandr2 libgbm1 libgtk-3-0 \

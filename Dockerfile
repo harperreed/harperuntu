@@ -43,7 +43,7 @@ RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror://mirrors.ubuntu.c
 	DEBIAN_FRONTEND=noninteractive apt-get install -y \
 		ca-certificates wget ripgrep \
 		locales locales-all \
-		git jq sqlite3 curl vim neovim lsof iproute2 less nginx \
+		git jq sqlite3 curl vim neovim fish yadm lsof iproute2 less nginx \
 		make python3-pip python-is-python3 tree net-tools file build-essential \
 		pipx psmisc bsdmainutils sudo socat \
 		openssh-server openssh-client \
@@ -54,8 +54,11 @@ RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror://mirrors.ubuntu.c
 		man-db manpages manpages-dev \
 		mitmproxy \
 		systemd systemd-sysv \
-		atop btop iotop ncdu \
+		atop btop iotop ncdu htop \
 		git \
+		figlet lolcat fortune-mod bsdgames \
+		fd-find fzf zoxide direnv bat eza tmux hugo nmap pv mosh grc \
+		dnsutils whois gnupg openssl potrace python3-pygments \
 		libglib2.0-0 libnss3 libx11-6 libxcomposite1 libxdamage1 \
 		libxext6 libxi6 libxrandr2 libgbm1 libgtk-3-0 \
 		fonts-noto-color-emoji fonts-symbola \
@@ -75,6 +78,9 @@ RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror://mirrors.ubuntu.c
 	# to prevent services from starting during build, but we run systemd at runtime)
 	rm -f /usr/sbin/policy-rc.d
 
+RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
+    ln -sf /usr/bin/batcat /usr/local/bin/bat
+
 # Install Tailscale (keyring method, per https://tailscale.com/install.sh)
 # This must run after ca-certificates and curl are installed.
 RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg -o /usr/share/keyrings/tailscale-archive-keyring.gpg && \
@@ -92,6 +98,14 @@ COPY --from=exeuntu-cli /out/exeuntu /usr/local/bin/exeuntu
 
 # Install uv to /usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+
+# Install Harper's runtime and shell-history managers.
+RUN curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh && \
+    test -x /usr/local/bin/mise && \
+    /usr/local/bin/mise --version
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh && \
+    install -m 0755 /root/.atuin/bin/atuin /usr/local/bin/atuin && \
+    /usr/local/bin/atuin --version
 
 # Configure systemd
 RUN rm /etc/systemd/system/multi-user.target.wants/console-setup.service \
@@ -198,6 +212,7 @@ RUN usermod -l exedev -c "exe.dev user" ubuntu && \
 	groupmod -n exedev ubuntu && \
 	mv /home/ubuntu /home/exedev && \
 	usermod -d /home/exedev exedev && \
+	chsh -s /usr/bin/fish exedev && \
 	usermod -aG sudo exedev && \
 	usermod -aG docker exedev && \
 	sed -i 's/^ubuntu:/exedev:/' /etc/subuid /etc/subgid && \
@@ -222,8 +237,8 @@ ENV EXEUNTU=1
 COPY --from=chrome /headless-shell /headless-shell
 ENV PATH="/usr/local/bin:/headless-shell:${PATH}"
 
-RUN mkdir -p /home/exedev /home/exedev/.config/shelley && \
-    chown exedev:exedev /home/exedev /home/exedev/.config /home/exedev/.config/shelley
+RUN mkdir -p /home/exedev /home/exedev/.config/shelley /home/exedev/.config/fish/conf.d /home/exedev/.config/bin && \
+    chown -R exedev:exedev /home/exedev /home/exedev/.config
 
 USER exedev
 
@@ -234,6 +249,45 @@ WORKDIR /home/exedev
 RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/exedev/.bashrc && \
     echo 'export XDG_RUNTIME_DIR="/run/user/$(id -u)"' >> /home/exedev/.bashrc && \
     echo 'export XDG_RUNTIME_DIR="/run/user/$(id -u)"' >> /home/exedev/.profile
+
+RUN cat > /home/exedev/.config/fish/conf.d/00-exeuntu.fish <<'EOF'
+set -gx EDITOR nvim
+set -gx LANG en_US.UTF-8
+set -gx LC_ALL en_US.UTF-8
+set -gx XDG_RUNTIME_DIR /run/user/(id -u)
+
+fish_add_path -g $HOME/.local/bin
+fish_add_path -g $HOME/.config/bin
+fish_add_path -g $HOME/.cargo/bin
+fish_add_path -g $HOME/go/bin
+fish_add_path -g /usr/local/sbin
+
+if type -q atuin
+    atuin init fish | source
+end
+
+if type -q zoxide
+    zoxide init fish | source
+end
+
+if type -q direnv
+    direnv hook fish | source
+end
+
+if type -q mise
+    mise activate fish | source
+end
+EOF
+
+RUN fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | \
+    source && \
+    fisher install \
+        jorgebucaran/fisher \
+        franciscolourenco/done \
+        patrickf1/fzf.fish \
+        oh-my-fish/plugin-grc \
+        edc/bass \
+        jorgebucaran/hydro'
 
 # Configure git to use 'main' as default branch name
 RUN git config --global init.defaultBranch main

@@ -82,3 +82,11 @@ test("installs apt dev utilities for fast dev loops", () => {
     assert.match(dockerfile, new RegExp(`\\b${pkg}\\b`), `Dockerfile should install ${pkg}`);
   }
 });
+
+test("bootstraps mise toolchains and corepack for JS readiness", () => {
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/mise-config\.toml \/home\/exedev\/\.config\/mise\/config\.toml/);
+  assert.match(dockerfile, /mise install/);
+  assert.match(dockerfile, /corepack enable/);
+  assert.match(dockerfile, /corepack install -g pnpm/);
+  assert.match(dockerfile, /\.local\/share\/mise\/shims/, "shims must be on PATH for non-interactive shells");
+});

@@ -157,3 +157,13 @@ test("greeting does not reference unshipped font files", () => {
   const greeting = read("dotfiles/fish/conf.d/50-greeting.fish");
   assert.ok(!greeting.includes(".config/fonts"), "50-greeting.fish must not reference .config/fonts");
 });
+
+test("mise config pins Harper's runtimes and release tools", () => {
+  const mise = read("dotfiles/mise-config.toml");
+  for (const tool of ["node", "bun", "rust", "ast-grep", "difftastic", "lazygit", "ripgrep-all", "watchexec", "yq", "usage"]) {
+    assert.match(mise, new RegExp(`^${tool} = `, "m"), `mise config should pin ${tool}`);
+  }
+  for (const banned of ["go = ", "claude", "codex", "zig", "java", "firebase", "pbcopy"]) {
+    assert.ok(!mise.includes(banned), `mise config must not contain "${banned}"`);
+  }
+});

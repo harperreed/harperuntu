@@ -1,0 +1,17 @@
+# ABOUTME: mise runtime and tool configuration for the harperuntu image.
+# ABOUTME: Sanitized from Harper's ~/.config/mise/config.toml — runtimes and release-binary tools; llm task definitions omitted.
+[settings]
+experimental = true
+idiomatic_version_file_enable_tools = ["python"]
+
+[tools]
+usage = "latest"
+node = "latest"
+bun = "latest"
+rust = "latest"
+ast-grep = "latest"
+difftastic = "latest"
+lazygit = "latest"
+ripgrep-all = "latest"
+watchexec = "latest"
+yq = "latest"

@@ -250,6 +250,7 @@ COPY --chown=exedev:exedev dotfiles/direnvrc /home/exedev/.config/direnv/direnvr
 COPY --chown=exedev:exedev dotfiles/atuin-config.toml /home/exedev/.config/atuin/config.toml
 COPY --chown=exedev:exedev dotfiles/bin/ /home/exedev/.config/bin/
 COPY --chown=exedev:exedev dotfiles/fish/conf.d/ /home/exedev/.config/fish/conf.d/
+COPY --chown=exedev:exedev dotfiles/mise-config.toml /home/exedev/.config/mise/config.toml
 
 USER exedev
 
@@ -257,7 +258,7 @@ WORKDIR /home/exedev
 
 # Update PATH in .bashrc to include .local/bin and set XDG_RUNTIME_DIR for systemd user services
 # XDG paths are not autopopulated despite the presense of libpam-systemd. Manually add them here.
-RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/exedev/.bashrc && \
+RUN echo 'export PATH="$HOME/.local/share/mise/shims:$HOME/.local/share/pnpm:$HOME/.local/bin:$PATH"' >> /home/exedev/.bashrc && \
     echo 'export XDG_RUNTIME_DIR="/run/user/$(id -u)"' >> /home/exedev/.bashrc && \
     echo 'export XDG_RUNTIME_DIR="/run/user/$(id -u)"' >> /home/exedev/.profile
 
@@ -272,6 +273,10 @@ fish_add_path -g $HOME/.config/bin
 fish_add_path -g $HOME/.cargo/bin
 fish_add_path -g $HOME/go/bin
 fish_add_path -g /usr/local/sbin
+
+set -gx PNPM_HOME $HOME/.local/share/pnpm
+fish_add_path -g $HOME/.local/share/pnpm
+fish_add_path -g $HOME/.local/share/mise/shims
 
 if type -q atuin
     atuin init fish | source
@@ -299,6 +304,25 @@ RUN fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main
         oh-my-fish/plugin-grc \
         edc/bass \
         jorgebucaran/hydro'
+
+# Install Harper's mise-managed toolchains and dev tools (see dotfiles/mise-config.toml).
+# Versions resolve at build time; the weekly no-cache rebuild keeps them fresh.
+RUN mise install && \
+    mise reshim && \
+    mise x -- node --version && \
+    mise x -- bun --version && \
+    mise x -- cargo --version && \
+    mise x -- ast-grep --version && \
+    mise x -- difft --version && \
+    mise x -- lazygit --version && \
+    mise x -- rga --version && \
+    mise x -- watchexec --version && \
+    mise x -- yq --version
+
+# Enable corepack so pnpm/yarn shims exist, and bake the current pnpm release.
+RUN mise x -- sh -c 'export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && corepack enable && corepack install -g pnpm@latest' && \
+    mise reshim && \
+    env PATH="/home/exedev/.local/share/mise/shims:$PATH" pnpm --version
 
 # Switch back to root to install systemd service
 USER root

@@ -97,3 +97,53 @@ test("atuin config mirrors Harper's active settings", () => {
     assert.ok(atuin.includes(needle), `atuin config should contain ${needle}`);
   }
 });
+
+const expectedBinScripts = [
+  "biggest_files.sh", "domaininfo.sh", "e", "external_ip.sh", "get_ssl_cert.sh",
+  "git-all", "git-amend", "git-credit", "git-delete-local-merged", "git-edit-new",
+  "git-nuke", "git-promote", "git-track", "git-undo", "git-unpushed",
+  "git-unpushed-stat", "git-up", "gpg_dec.sh", "headers", "jpg2svg.sh",
+  "lowerit.sh", "png2svg.sh", "spark", "tarscp", "tm", "whatismyip",
+];
+
+test("ships the Linux-safe personal bin scripts", () => {
+  const present = readdirSync(join(repoRoot, "dotfiles/bin")).sort();
+  assert.deepEqual(present, [...expectedBinScripts].sort());
+  for (const script of expectedBinScripts) {
+    const mode = statSync(join(repoRoot, "dotfiles/bin", script)).mode;
+    assert.ok(mode & 0o111, `${script} must be executable`);
+  }
+});
+
+const expectedFishFiles = [
+  "15-harper-aliases.fish", "17-qol.fish", "50-greeting.fish", "70-keys.fish",
+  "71-nav.fish", "80-git-fzf.fish", "85-abbreviations.fish",
+];
+
+test("ships sanitized fish conf.d extras", () => {
+  const present = readdirSync(join(repoRoot, "dotfiles/fish/conf.d")).sort();
+  assert.deepEqual(present, [...expectedFishFiles].sort());
+});
+
+test("fish abbreviations use Linux equivalents", () => {
+  const abbr = read("dotfiles/fish/conf.d/85-abbreviations.fish");
+  assert.ok(abbr.includes("abbr -a g git"));
+  assert.ok(abbr.includes("apt"), "update/cleanup abbrs should use apt");
+  assert.ok(!abbr.includes("brew"));
+  assert.ok(!abbr.includes("ipconfig getifaddr"), "localip must not use macOS ipconfig");
+});
+
+test("fish qol keeps bat manpager, drops macOS clipboard helpers", () => {
+  const qol = read("dotfiles/fish/conf.d/17-qol.fish");
+  assert.ok(qol.includes("MANPAGER"));
+  for (const banned of ["function cb", "function pb", "function ql"]) {
+    assert.ok(!qol.includes(banned), `17-qol.fish must not define ${banned}`);
+  }
+});
+
+test("greeting drops the macOS keychain check", () => {
+  const greeting = read("dotfiles/fish/conf.d/50-greeting.fish");
+  assert.ok(greeting.includes("figlet"));
+  assert.ok(!greeting.toLowerCase().includes("keychain"));
+  assert.ok(!greeting.includes("security "));
+});

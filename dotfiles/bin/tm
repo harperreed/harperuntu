@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Machine-specific default emoji
+case "$(hostname -s)" in
+    "orbit")     DEFAULT_EMOJI="🪐" ;;
+    "disaster")  DEFAULT_EMOJI="🌪️" ;;
+    "occult")    DEFAULT_EMOJI="🔮" ;;
+    "magic")    DEFAULT_EMOJI="🪄" ;;
+    *)           DEFAULT_EMOJI="✨" ;;
+esac
+
+SESSION_NAME="${1:-$DEFAULT_EMOJI}"
+
+# Check if session exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    # Session exists, attach to it
+    tmux attach-session -t "$SESSION_NAME"
+else
+    # Session doesn't exist, create it
+    tmux new-session -s "$SESSION_NAME"
+fi

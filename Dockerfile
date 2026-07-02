@@ -247,6 +247,8 @@ COPY --chown=exedev:exedev dotfiles/git-ignore /home/exedev/.config/git/ignore
 COPY --chown=exedev:exedev dotfiles/tmux.conf /home/exedev/.tmux.conf
 COPY --chown=exedev:exedev dotfiles/direnvrc /home/exedev/.config/direnv/direnvrc
 COPY --chown=exedev:exedev dotfiles/atuin-config.toml /home/exedev/.config/atuin/config.toml
+COPY --chown=exedev:exedev dotfiles/bin/ /home/exedev/.config/bin/
+COPY --chown=exedev:exedev dotfiles/fish/conf.d/ /home/exedev/.config/fish/conf.d/
 
 USER exedev
 

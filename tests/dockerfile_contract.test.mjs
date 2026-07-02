@@ -71,3 +71,8 @@ test("copies tmux, direnv, and atuin configs into the image", () => {
   assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/direnvrc \/home\/exedev\/\.config\/direnv\/direnvrc/);
   assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/atuin-config\.toml \/home\/exedev\/\.config\/atuin\/config\.toml/);
 });
+
+test("copies personal bin scripts and fish extras into the image", () => {
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/bin\/ \/home\/exedev\/\.config\/bin\//);
+  assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/fish\/conf\.d\/ \/home\/exedev\/\.config\/fish\/conf\.d\//);
+});

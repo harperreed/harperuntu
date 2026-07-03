@@ -270,7 +270,7 @@ func fetchJSON(ctx context.Context, client *http.Client, rawURL string, out any)
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4*1024))
 		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
-	dec := json.NewDecoder(io.LimitReader(resp.Body, 1024*1024))
+	dec := json.NewDecoder(io.LimitReader(resp.Body, 10*1024*1024))
 	if err := dec.Decode(out); err != nil {
 		return fmt.Errorf("decode: %w", err)
 	}

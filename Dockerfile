@@ -319,9 +319,13 @@ RUN mise install && \
     mise x -- watchexec --version && \
     mise x -- yq --version
 
-# Enable corepack so pnpm/yarn shims exist, and bake the current pnpm release.
-RUN mise x -- sh -c 'export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && corepack enable && corepack install -g pnpm@latest' && \
+# Enable corepack so pnpm/yarn shims exist, and bake the pinned pnpm release.
+ARG COREPACK_VERSION=0.35.0
+ARG PNPM_VERSION=11.9.0
+RUN mise x -- npm install -g corepack@${COREPACK_VERSION} pnpm@${PNPM_VERSION} && \
+    mise x -- sh -c 'export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && corepack enable && corepack install -g pnpm@${PNPM_VERSION}' && \
     mise reshim && \
+    env PATH="/home/exedev/.local/share/mise/shims:$PATH" corepack --version && \
     env PATH="/home/exedev/.local/share/mise/shims:$PATH" pnpm --version
 
 # Switch back to root to install systemd service

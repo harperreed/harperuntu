@@ -86,9 +86,15 @@ test("installs apt dev utilities for fast dev loops", () => {
 test("bootstraps mise toolchains and corepack for JS readiness", () => {
   assert.match(dockerfile, /COPY --chown=exedev:exedev dotfiles\/mise-config\.toml \/home\/exedev\/\.config\/mise\/config\.toml/);
   assert.match(dockerfile, /mise install/);
+  assert.match(dockerfile, /ARG COREPACK_VERSION=\d+\.\d+\.\d+/);
+  assert.match(dockerfile, /ARG PNPM_VERSION=\d+\.\d+\.\d+/);
+  assert.match(dockerfile, /npm install -g corepack@\$\{COREPACK_VERSION\} pnpm@\$\{PNPM_VERSION\}/);
   assert.match(dockerfile, /corepack enable/);
-  assert.match(dockerfile, /corepack install -g pnpm/);
+  assert.match(dockerfile, /corepack install -g pnpm@\$\{PNPM_VERSION\}/);
+  assert.match(dockerfile, /corepack --version/);
   assert.match(dockerfile, /\.local\/share\/mise\/shims/, "shims must be on PATH for non-interactive shells");
+  assert.ok(!dockerfile.includes("corepack@latest"), "corepack version must be pinned");
+  assert.ok(!dockerfile.includes("pnpm@latest"), "pnpm version must be pinned");
 });
 
 test("bakes and runs the smoke test as a build gate", () => {
